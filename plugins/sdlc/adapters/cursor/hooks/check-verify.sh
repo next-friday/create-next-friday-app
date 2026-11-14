@@ -18,8 +18,14 @@ fingerprint=$({
   git rev-parse HEAD 2> /dev/null
   printf '%s\n' "$changes"
   git diff HEAD -- . ':(exclude)intent' 2> /dev/null
+  git ls-files -z --others --exclude-standard -- . ':(exclude)intent' | xargs -0 cat 2> /dev/null
 } | cksum | cut -d ' ' -f 1)
 last=$(cat "$state/$key" 2> /dev/null)
+
+if [ "$(printf '%s' "$input" | jq -r '.stop_hook_active // false')" = true ] \
+  && [ "$(cat "$state/$key.failed" 2> /dev/null)" = "$fingerprint" ]; then
+  exit 0
+fi
 
 if [ "$last" = "$fingerprint" ]; then
   exit 0
@@ -32,8 +38,10 @@ fi
 
 if output=$(pnpm verify 2>&1); then
   printf '%s' "$fingerprint" > "$state/$key"
+  rm -f "$state/$key.failed"
   exit 0
 fi
+printf '%s' "$fingerprint" > "$state/$key.failed"
 
 reason="pnpm verify failed on the files this turn changed. Fix the code, not the check, and run it again. Its last lines:
 $(printf '%s\n' "$output" | tail -n 30)"

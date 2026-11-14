@@ -55,7 +55,7 @@
       "event": "stop",
       "script": "check-verify.sh",
       "argument": "followup",
-      "loopLimit": 3
+      "loopLimit": 1
     }
   ]
 }

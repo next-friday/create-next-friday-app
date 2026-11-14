@@ -6,14 +6,14 @@ This project runs an AI-native software development loop in Claude Code and Curs
 
 Send a request with `/sdlc:sdlc-mode`. Only a person starts it; nothing routes work into it by itself. `/sdlc:sdlc-help` says how to keep `/sdlc:sdlc-mode` on for a session in Claude Code and Cursor, and `/sdlc:setup-sdlc` chooses the models and reports which steps below are done. `intent/README.md` and the playbooks in `plugins/sdlc/claude-code/skills/sdlc-mode/playbooks/` say who acts and who decides at each stage.
 
-| Stage    | Who acts                                                    | What carries it out                                                                                                    |
-| :------- | :---------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------- |
-| Plan     | The originator; the product owner accepts by merging        | `/sdlc:sdlc-mode` with the idea writes `intent/<change>/intent.md`                                                     |
-| Design   | The agent; the product owner reviews and merges             | `Spec on intent merge`, or `/sdlc:sdlc-mode` with the intent's path, writes `spec.md`                                  |
-| Build    | The engineer accepts the plan in the session; the agent builds | `/sdlc:sdlc-mode build` writes `plan.md` and the code in one pull request; `pnpm plan:check` and the push hook check them |
-| Test     | The agent, before it reports done                           | The `Stop` hook runs `pnpm verify`; the `verifier` subagent runs the app                                               |
-| Deploy   | A code owner approves and a person merges; a release manager approves production | `playbooks/review.md` drives the pull request to green; the production gate hook blocks a deploy without approval |
-| Maintain | A service owner triages                                     | `Control band` and `/sdlc:sdlc-mode` with a finding write a new `intent.md`                                            |
+| Stage    | Who acts                                                                         | What carries it out                                                                                                       |
+| :------- | :------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------ |
+| Plan     | The originator; the product owner accepts by merging                             | `/sdlc:sdlc-mode` with the idea writes `intent/<change>/intent.md`                                                        |
+| Design   | The agent; the product owner reviews and merges                                  | `Spec on intent merge`, or `/sdlc:sdlc-mode` with the intent's path, writes `spec.md`                                     |
+| Build    | The engineer accepts the plan in the session; the agent builds                   | `/sdlc:sdlc-mode build` writes `plan.md` and the code in one pull request; `pnpm plan:check` and the push hook check them |
+| Test     | The agent, before it reports done                                                | The `Stop` hook runs `pnpm verify`; the `verifier` subagent runs the app                                                  |
+| Deploy   | A code owner approves and a person merges; a release manager approves production | `playbooks/review.md` drives the pull request to green; the production gate hook blocks a deploy without approval         |
+| Maintain | A service owner triages                                                          | `Control band` and `/sdlc:sdlc-mode` with a finding write a new `intent.md`                                               |
 
 `/sdlc:sdlc-status` shows where each change stands, and a session starts with the same list.
 

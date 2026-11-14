@@ -2,7 +2,7 @@
 
 From `intent/ci/intent.md`. Status: done.
 
-Built: every requirement, with two departures. Requirement 7's docs site is withdrawn with `intent/monorepo-apps/`. Requirement 8: CodeQL, Dependency Review, and Scorecard stay in the templates behind the repository variable `CODE_SCANNING`, which `templates/base/SETUP.md` step 3 sets only where the plan offers them.
+Built: every requirement, with two departures; requirement 3's images are proven by running the prune stage's commands, and the Container Image job builds them in a generated project. Requirement 7's docs site is withdrawn with `intent/monorepo-apps/`. Requirement 8: CodeQL, Dependency Review, and Scorecard stay in the templates behind the repository variable `CODE_SCANNING`, which `templates/base/SETUP.md` step 3 sets only where the plan offers them.
 
 Written at `main` `dfac1fc` with the `write-spec` skill as committed there. The agent wrote it as the next step of the loop, under `AGENTS.md`'s "Asking the product owner"; no product owner prompt added a constraint to the skill's prompt.
 

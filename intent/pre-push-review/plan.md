@@ -20,7 +20,8 @@ Accepted by: @joetakara.
 ## Proof
 
 - 1: `playbooks/open-pr.md` step 4 and `playbooks/review.md` step 4.
-- 2, 3: `check-push.cases.json`: a push with no review is blocked in both tools, and a command that is not a push passes.
+- 2: `check-push.cases.json`: a push with no review is blocked in both tools, a push of the reviewed commit passes, and a command that is not a push passes, including a commit message that names one.
+- 3: running the hook on a branch whose commit changes a file the plan does not name blocks the push and names the file.
 - 4: `playbooks/open-pr.md` step 6 puts the findings in the review's comment.
 - 5: no Bugbot or CodeRabbit file is in the tree.
 - 6: the plugin ships in every generated project.

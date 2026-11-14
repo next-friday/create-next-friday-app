@@ -464,8 +464,13 @@ function runHookCase(script: string, hookCase: HookCase): string {
     if (hookCase.fileContents !== undefined) {
       const repository = createCaseRepository(stateDirectory);
 
+      const headCommit = execFileSync("git", ["rev-parse", "HEAD"], {
+        cwd: repository,
+        encoding: "utf8",
+      }).trim();
+
       for (const [file, content] of Object.entries(hookCase.fileContents)) {
-        writeCaseFiles(repository, [file], content);
+        writeCaseFiles(repository, [file], content.split("{HEAD}").join(headCommit));
       }
 
       return runHookScript(

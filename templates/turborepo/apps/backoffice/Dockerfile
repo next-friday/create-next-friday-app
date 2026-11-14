@@ -4,7 +4,8 @@ FROM \
   AS prune
 WORKDIR /app
 COPY . .
-RUN corepack enable \
+RUN npm install --global corepack@0.36.0 \
+  && corepack enable \
   && pnpm dlx "turbo@$(node -p "require('./package.json').devDependencies.turbo")" prune "$(node -p "require('./apps/backoffice/package.json').name")" --docker
 
 FROM \
@@ -13,7 +14,7 @@ FROM \
 ENV NEXT_TELEMETRY_DISABLED=1
 WORKDIR /app
 COPY --from=prune /app/out/json/ ./
-RUN corepack enable
+RUN npm install --global corepack@0.36.0 && corepack enable
 RUN pnpm install --frozen-lockfile --ignore-scripts
 COPY --from=prune /app/out/full/ ./
 # `next build` loads the Payload config, which requires these variables. The values are placeholders for the build only.

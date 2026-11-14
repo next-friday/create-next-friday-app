@@ -7,8 +7,8 @@ allow() {
   exit 0
 }
 
-command=$(printf '%s' "$input" | jq -r '.tool_input.command // .command // ""')
-printf '%s' "$command" | grep -Eq '(^|[;&|[:space:]])git([[:space:]]+-C[[:space:]]+[^[:space:]]+)?[[:space:]]+push([[:space:]]|$)' || allow "$1"
+command=$(printf '%s' "$input" | jq -r '.tool_input.command // .command // ""' | sed 's/"[^"]*"/""/g')
+printf '%s' "$command" | grep -Eq "(^|[;&|('])[[:space:]]*git([[:space:]]+(-c|-C)[[:space:]]+[^[:space:]]+|[[:space:]]+--[a-z-]+(=[^[:space:]]+)?)*[[:space:]]+push([[:space:];&|)']|$)" || allow "$1"
 
 project=$(printf '%s' "$input" | jq -r '.cwd // .workspace_roots[0] // ""')
 [ -n "$project" ] && cd "$project" 2> /dev/null || allow "$1"
@@ -27,14 +27,15 @@ if [ -n "$base" ]; then
   plans=$(git diff --name-only "$base" HEAD -- 'intent/*/plan.md')
   if [ "$(printf '%s\n' "$plans" | grep -c .)" = 1 ]; then
     for commit in $(git rev-list "$base..HEAD"); do
-      files=$(git diff-tree --no-commit-id --name-only -r "$commit" | grep -v '^intent/')
-      git diff-tree --no-commit-id --name-only -r "$commit" | grep -qxF "$plans" && continue
-      plan_text=$(git show "$commit:$plans" 2> /dev/null)
-      for file in $files; do
-        printf '%s' "$plan_text" | grep -qF "$file" && continue
-        problems="${problems}- Commit $(git rev-parse --short "$commit") changes $file, which $plans does not name, and does not change $plans. Name the file in the plan in that commit.
+      git cat-file -e "$commit:$plans" 2> /dev/null || continue
+      git -c core.quotePath=false diff-tree --no-commit-id --name-only -r "$commit" | grep -qxF "$plans" && continue
+      plan_text=$(git show "$commit:$plans")
+      missing=$(git -c core.quotePath=false diff-tree --no-commit-id --name-only -r "$commit" | grep -v '^intent/' | while IFS= read -r file; do
+        printf '%s' "$plan_text" | grep -qF -- "$file" || printf '%s\n' "$file"
+      done)
+      [ -z "$missing" ] && continue
+      problems="${problems}- Commit $(git rev-parse --short "$commit") changes files that $plans does not name, and does not change $plans: $(printf '%s' "$missing" | tr '\n' ',' | sed 's/,$//; s/,/, /g'). Name them in the plan in that commit.
 "
-      done
     done
   fi
 fi

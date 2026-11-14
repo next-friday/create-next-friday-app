@@ -19,7 +19,7 @@ Accepted by: @joetakara.
 
 ## Risks
 
-- Docker could not run in this session, so the prune stage was proven by running its commands, not by `docker build`.
+- No `docker build` proves the prune stage; its commands are run one by one, which proves the steps but not the image. The Container Image job of a generated turborepo project builds the image in its own CI.
 - A concurrency of 2 is a starting value for a two-core runner; the spec's area of concern asks for it to be measured.
 
 ## Proof

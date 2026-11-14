@@ -22,10 +22,10 @@ The change was built before this repository committed a plan for each change. Th
 
 ## Proof
 
-- 1: `templates/base/SECURITY.md:9` names `security@example.com`; `templates/base/SETUP.md:48` replaces it.
-- 2: the root `SECURITY.md:11` links Private Vulnerability Reporting.
-- 3: `templates/base/SETUP.md:59` turns on Dependabot alerts and security updates, and secret scanning with Secret Protection only.
+- 1: `templates/base/SECURITY.md` names `security@example.com`, and `templates/base/SETUP.md`, step 2, replaces it.
+- 2: the root `SECURITY.md` links Private Vulnerability Reporting.
+- 3: `templates/base/SETUP.md`, step 3, turns on Dependabot alerts and security updates, and secret scanning with Secret Protection only.
 - 4: `templates/base/.github/workflows/secret-scan.yml` runs gitleaks and TruffleHog.
 - 5: both `documentation.yml` forms carry the labels `documentation` and `needs triage`.
-- 6: no `.git-blame-ignore-revs` is committed, and `CONTRIBUTING.md:103` says how to add one.
+- 6: no `.git-blame-ignore-revs` is committed, and `CONTRIBUTING.md` says how to add one.
 - 7: `pnpm verify` passes in a generated project of each stack.

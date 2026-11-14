@@ -4,7 +4,7 @@ FROM \
   AS base
 WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-RUN corepack enable
+RUN npm install --global corepack@0.36.0 && corepack enable
 
 FROM base AS build
 RUN pnpm install --frozen-lockfile --ignore-scripts

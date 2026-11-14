@@ -18,7 +18,7 @@
       },
       {
         "command": "sh \"${CURSOR_PLUGIN_ROOT}/hooks/check-verify.sh\" followup",
-        "loop_limit": 3
+        "loop_limit": 1
       }
     ],
     "sessionStart": [

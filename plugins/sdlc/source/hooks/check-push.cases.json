@@ -47,5 +47,38 @@
       }
     },
     "expected": "pass"
+  },
+  {
+    "name": "a push of the reviewed commit: allowed",
+    "input": {
+      "tool_input": {
+        "command": "git push"
+      }
+    },
+    "fileContents": {
+      ".git/sdlc-review": "{HEAD}\n"
+    },
+    "expected": "pass"
+  },
+  {
+    "name": "a push with a global option and no review: blocked",
+    "input": {
+      "tool_input": {
+        "command": "git -c core.quotePath=false push"
+      }
+    },
+    "fileContents": {
+      "README.md": "x\n"
+    },
+    "expected": "block"
+  },
+  {
+    "name": "a commit message that names a push: allowed",
+    "input": {
+      "tool_input": {
+        "command": "git commit -m \"then git push now\""
+      }
+    },
+    "expected": "pass"
   }
 ]

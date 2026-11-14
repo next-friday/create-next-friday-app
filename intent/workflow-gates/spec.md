@@ -27,7 +27,7 @@ Written at `main` `619cb88` with the product owner's scope for the starter: a ge
 1. No policy. Running `pnpm verify` at the end of a turn costs minutes.
    Decision: it runs only when files outside `intent/` changed since the last passing run.
 2. No policy. A fix that must change an old test needs a way through.
-   Decision: a code owner writes `Test change accepted by: @<handle>.` in the fix plan.
+   Decision: a code owner writes `Test change accepted by: @<handle>.` in the fix plan. No script can tell who wrote the line; the plan is part of the pull request the code owner approves, which is where the line is checked.
 3. No policy. Bots open branches with no plan.
    Decision: `dependabot/` and `changeset-release/` branches are exempt.
 

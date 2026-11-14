@@ -5,7 +5,7 @@ FROM \
 ENV NEXT_TELEMETRY_DISABLED=1
 WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-RUN corepack enable
+RUN npm install --global corepack@0.36.0 && corepack enable
 RUN pnpm install --frozen-lockfile --ignore-scripts
 COPY next.config.ts tsconfig.json ./
 COPY src ./src

@@ -23,6 +23,7 @@ Follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 From the repository root:
 
 ```sh
+npm install --global corepack
 corepack enable
 git clone https://github.com/next-friday/next-friday-create-app.git
 cd next-friday-create-app

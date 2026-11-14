@@ -1149,7 +1149,8 @@ function findBranchRuleLines(): string[] {
   const modifiedPaths = runGit([
     "diff",
     "--name-only",
-    "--diff-filter=M",
+    "--no-renames",
+    "--diff-filter=MD",
     `${branchChanges.mergeBase}...HEAD`,
   ])
     .split("\n")
