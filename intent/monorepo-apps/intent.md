@@ -1,6 +1,8 @@
 # Intent: One monorepo per project, with apps the team names and adds
 
-Author: Joe Takara (Developer Productivity). Status: accepted.
+Author: Joe Takara (Developer Productivity). Status: withdrawn.
+
+Withdrawn: outside the starter's scope, which the product owner set as a generated project that builds, tests, lints, and runs CI, with the full `sdlc` plugin; a consumer who wants more opens its own intent. In particular, the five stacks of `src/stacks.ts` stay the starting points, and the deploy pipeline on a hosting provider is the consumer's choice.
 
 ## Problem
 

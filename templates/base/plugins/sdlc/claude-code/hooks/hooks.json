@@ -4,8 +4,8 @@
       {
         "hooks": [
           {
-            "timeout": 10,
             "type": "command",
+            "timeout": 10,
             "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/check-reply-shape.sh\" snapshot"
           }
         ]
@@ -15,9 +15,18 @@
       {
         "hooks": [
           {
-            "timeout": 10,
             "type": "command",
+            "timeout": 10,
             "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/check-reply-shape.sh\""
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "timeout": 900,
+            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/check-verify.sh\""
           }
         ]
       }
@@ -26,9 +35,21 @@
       {
         "hooks": [
           {
-            "timeout": 10,
             "type": "command",
+            "timeout": 10,
             "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/sdlc-status.sh\""
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "timeout": 10,
+            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/check-push.sh\""
           }
         ]
       }

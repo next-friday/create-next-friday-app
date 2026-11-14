@@ -5,7 +5,7 @@
 rules:
   adhoc-packages:
     ignore:
-      - ci.yml:237
+      - ci.yml:235
       - release.yml:170
   self-repository:
     disable: true

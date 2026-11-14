@@ -56,6 +56,10 @@
   "evidence-before-claims": {
     "description": "Evidence: verify and cite a claim before stating or writing it"
   },
+  "github-workflows": {
+    "description": "GitHub workflows: least permissions, pinned actions, and untrusted input through the environment",
+    "globs": [".github/**"]
+  },
   "no-suppression": {
     "description": "Findings: fix scanner and linter reports without inline suppressions"
   },

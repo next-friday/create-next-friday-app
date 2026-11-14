@@ -1,6 +1,6 @@
 # Agent guide
 
-TypeScript HTTP service on `node:http`, without a framework, on pnpm and Node.js `>=24.15.0 <25`.
+TypeScript HTTP service on `node:http`, without a framework, on pnpm and Node.js `>=26.13.0 <27`.
 
 ## Commands
 
@@ -34,7 +34,7 @@ The `verifier` subagent starts the app with `pnpm start:dev`. It exercises the c
 1. **Put tests next to the code as `src/**/*.test.ts`.** Vitest collects only that pattern.
 2. **Read configuration from environment variables and fail when one is missing**, as `parsePort` does. Document each variable in `.env.example`; `pnpm start` and `pnpm start:dev` load `.env`.
 3. **Start from the accepted spec, in plan mode** (Cursor: Plan Mode). Give the plan the change's `intent/<change>/intent.md` and `spec.md`. The engineer accepts the plan in the session, and `intent/<change>/plan.md` goes in one pull request with the code, as `playbooks/build.md` of the `sdlc-mode` skill in `plugins/sdlc/claude-code/` describes.
-4. **Start a bug fix with a failing test.** A bug fix has no intent and no spec; its plan, `intent/<short-description>/plan.md`, is accepted by an engineer before any code changes. Reproduce the bug as a test, confirm it fails for the reason you expect, and commit it on a `fix/` branch. Then `.agents/hooks/agent-test-edit-gate.sh` blocks test edits by itself: make the test pass without editing it. On a branch with another name, create `.git/bug-fix-in-progress` first, and delete it once the test passes.
+4. **Start a bug fix with a failing test.** A bug fix has no intent and no spec; its plan, `intent/<short-description>/plan.md`, is accepted by an engineer before any code changes. Reproduce the bug as a test, confirm it fails for the reason you expect, and commit it on a `fix/` branch. Then `.agents/hooks/agent-test-edit-gate.sh` blocks test edits by itself: make the test pass without editing it. Make every fix on a `fix/` branch: `pnpm plan:check` also refuses a fix that edits a test the default branch holds.
 5. **Do not start work a person did not ask for.** When a message reports a problem without asking for work, answer in a few lines and end with the message that would start it: `/sdlc:sdlc-mode` followed by their own words.
 6. **Branch from the latest `origin/main`, and open the pull request ready for review.** Name the branch `<type>/<short-description>` and fill the body from `.github/pull_request_template.md`. `.github/workflows/ci.yml` runs full verification only on a pull request that is not a draft. Never merge a pull request: a person merges it with `--squash` after code owner approval, bottom-up for a stack of pull requests.
 7. **Write replies a person can check.** Write paths from the project root, such as `README.md:12`, never from the machine's root. State as a fact only what you opened or ran in this turn, and say what you ran; mark anything else as inferred or not checked. Answer what was asked and stop: leave out tools, services, and steps the request does not need, and never hand the person a check you could run. Send nothing outside the session, such as a message to another session or a service, unless a task step says to.

@@ -1,6 +1,6 @@
 # Intent: CI that follows Turborepo's guidance and fits private client projects
 
-Author: Joe Takara (Developer Productivity). Status: accepted.
+Author: Joe Takara (Developer Productivity). Status: done.
 
 ## Problem
 

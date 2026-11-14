@@ -1,6 +1,6 @@
 # Intent: Keep dependencies current
 
-Author: Joe Takara (Developer Productivity). Status: accepted.
+Author: Joe Takara (Developer Productivity). Status: done.
 
 ## Problem
 

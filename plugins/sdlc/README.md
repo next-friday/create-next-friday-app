@@ -14,6 +14,10 @@ The `sdlc` plugin runs the software development loop: a skill that matches a req
 
 The plugin ships `sdlc-status.sh` as a `SessionStart` hook for Claude Code and a `sessionStart` hook for Cursor. When a session starts, it lists each `intent/<change>/` whose intent and spec are not `Status: done.`, with its stage and who acts next, from the files alone, and prints nothing when there is no such change or no `jq`. Claude Code adds the plain text to the session's context; Cursor gets it as `additional_context` from `sdlc-status.sh json`. `/sdlc:sdlc-status` gives the same summary with each change's pull requests. `pnpm plugin:check` runs the hook against `source/hooks/sdlc-status.cases.json`.
 
+`check-verify.sh` runs as a second `Stop` hook for Claude Code, with a timeout of 900 seconds, and as a `stop` hook for Cursor with `loop_limit` 3. When the files outside `intent/` changed since the last passing run, it runs `pnpm verify` and sends its last 30 lines back to the agent when it fails, so the turn goes on until the checks pass; Claude Code ends the turn itself after eight blocks in a row. It records the state that passed under `${TMPDIR:-/tmp}/sdlc-verify/`, and does nothing outside a Git repository, without `jq`, or when `package.json` has no `verify` script.
+
+`check-push.sh` runs before a shell command, as a `PreToolUse` hook on `Bash` for Claude Code and a `beforeShellExecution` hook for Cursor. It reads only `git push`, and refuses it when the last commit is not the hash in the file `git rev-parse --git-path sdlc-review` names, which `playbooks/open-pr.md` step 4 writes after the review, or when a commit on the branch changes a file that the branch's one `plan.md` does not name without changing that `plan.md`. The file is written by the agent, so the hook makes a skipped review visible rather than impossible; the review's findings on the pull request are the record a code owner reads.
+
 The plugin also ships `check-reply-shape.sh`, a POSIX `sh` script that reads the hook input with `jq`, as a `UserPromptSubmit` and a `Stop` hook for Claude Code and as three hooks for Cursor. It checks only a reply whose first line starts with `**Answer:**`, `**Result:**`, or `**No change:**`, and it blocks that reply once, with a reason that asks for the whole reply again, when the reply:
 
 - names a pull request or an issue by number outside a URL, a fenced block, and a code span that holds more than the bare number;
@@ -42,12 +46,12 @@ This repository registers the plugin in `.claude/settings.json` as a local `dire
 
 Run each from the repository root. Each one runs its self-tests first and exits 1 on a problem or a self-test failure.
 
-| Command             | Checks                                                                                           |
-| :------------------ | :----------------------------------------------------------------------------------------------- |
-| `pnpm plan:check`   | Each `intent/<change>/plan.md` against the plan template and its `spec.md`.                      |
-| `pnpm bands:check`  | `bands.yaml` against the rules for control bands.                                                |
-| `pnpm loop:measure` | For each `intent/<change>` folder, the days from intent to spec and the commits after each step. |
-| `pnpm plugin:check` | The adapters against `source/`.                                                                  |
+| Command             | Checks                                                                                                                                                                                                                                                                                            |
+| :------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `pnpm plan:check`   | Each `intent/<change>/plan.md` against the plan template and its `spec.md`; a branch that changes code with no `plan.md`, except a `dependabot/` or `changeset-release/` branch; and a fix that edits a test the default branch holds, unless the plan says `Test change accepted by: @<handle>.` |
+| `pnpm bands:check`  | `bands.yaml` against the rules for control bands.                                                                                                                                                                                                                                                 |
+| `pnpm loop:measure` | For each `intent/<change>` folder, the days from intent to spec and the commits after each step.                                                                                                                                                                                                  |
+| `pnpm plugin:check` | The adapters against `source/`.                                                                                                                                                                                                                                                                   |
 
 ## Eval cases
 

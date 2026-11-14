@@ -1,6 +1,6 @@
 # Intent: Agents cannot skip a workflow step, and no gate leaves a change stuck
 
-Author: Joe Takara (Developer Productivity). Status: draft.
+Author: Joe Takara (Developer Productivity). Status: done.
 
 ## Problem
 

@@ -1,6 +1,8 @@
 # Intent: A lean agent setup that matches the playbook
 
-Author: Joe Takara (Developer Productivity). Status: accepted.
+Author: Joe Takara (Developer Productivity). Status: withdrawn.
+
+Withdrawn: outside the starter's scope, which the product owner set as a generated project that builds, tests, lints, and runs CI, with the full `sdlc` plugin; a consumer who wants more opens its own intent. In particular, the parts the starter needs are built by `intent/workflow-gates/` and `intent/pre-push-review/`, and the `sdlc` plugin replaced the skills it moves.
 
 ## Problem
 

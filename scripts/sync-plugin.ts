@@ -21,7 +21,9 @@ type HookConfig = {
   argument?: string;
   event: string;
   loopLimit?: number;
+  matcher?: string;
   script: string;
+  timeout?: number;
 };
 
 type HookCase = {
@@ -29,6 +31,7 @@ type HookCase = {
   changedFiles?: string[];
   committed?: boolean;
   expected: string;
+  fileContents?: Record<string, string>;
   filesBeforeTurn?: string[];
   input: Record<string, unknown>;
   name: string;
@@ -117,22 +120,18 @@ function renderHookCommand(pluginRootVariable: string, hook: HookConfig): string
 function renderClaudeHooks(hooks: HookConfig[]): string {
   return `${JSON.stringify(
     {
-      hooks: Object.fromEntries(
-        hooks.map(hook => [
-          hook.event,
-          [
-            {
-              hooks: [
-                {
-                  timeout: hookTimeoutSeconds,
-                  type: "command",
-                  command: renderHookCommand("CLAUDE_PLUGIN_ROOT", hook),
-                },
-              ],
-            },
-          ],
-        ]),
-      ),
+      hooks: groupHooksByEvent(hooks, hook => ({
+        ...(hook.matcher !== undefined && {
+          matcher: hook.matcher,
+        }),
+        hooks: [
+          {
+            type: "command",
+            timeout: hook.timeout ?? hookTimeoutSeconds,
+            command: renderHookCommand("CLAUDE_PLUGIN_ROOT", hook),
+          },
+        ],
+      })),
     },
     undefined,
     2,
@@ -148,23 +147,35 @@ function renderCursorHooks(hooks: HookConfig[]): string {
   return `${JSON.stringify(
     {
       version: 1,
-      hooks: Object.fromEntries(
-        hooks.map(hook => [
-          hook.event,
-          [
-            {
-              command: renderHookCommand("CURSOR_PLUGIN_ROOT", hook),
-              ...(hook.loopLimit !== undefined && {
-                loop_limit: hook.loopLimit,
-              }),
-            },
-          ],
-        ]),
-      ),
+      hooks: groupHooksByEvent(hooks, hook => ({
+        command: renderHookCommand("CURSOR_PLUGIN_ROOT", hook),
+        ...(hook.loopLimit !== undefined && {
+          loop_limit: hook.loopLimit,
+        }),
+      })),
     },
     undefined,
     2,
   )}\n`;
+}
+
+/**
+ * Group the hooks of one adapter by event, in the order `hooks.json` lists them, so two scripts can share an event.
+ * @param hooks The hooks that `hooks.json` names for the adapter.
+ * @param render Renders one hook as its tool expects it.
+ * @returns Each event and its rendered hooks.
+ */
+function groupHooksByEvent(
+  hooks: HookConfig[],
+  render: (hook: HookConfig) => Record<string, unknown>,
+): Record<string, Record<string, unknown>[]> {
+  const grouped: Record<string, Record<string, unknown>[]> = {};
+
+  for (const hook of hooks) {
+    grouped[hook.event] = [...(grouped[hook.event] ?? []), render(hook)];
+  }
+
+  return grouped;
 }
 
 const adapters: Adapter[] = [
@@ -450,6 +461,29 @@ function runHookCase(script: string, hookCase: HookCase): string {
       );
     }
 
+    if (hookCase.fileContents !== undefined) {
+      const repository = createCaseRepository(stateDirectory);
+
+      const headCommit = execFileSync("git", ["rev-parse", "HEAD"], {
+        cwd: repository,
+        encoding: "utf8",
+      }).trim();
+
+      for (const [file, content] of Object.entries(hookCase.fileContents)) {
+        writeCaseFiles(repository, [file], content.split("{HEAD}").join(headCommit));
+      }
+
+      return runHookScript(
+        script,
+        hookCase.argument,
+        {
+          ...hookCase.input,
+          cwd: repository,
+        },
+        stateDirectory,
+      );
+    }
+
     if (hookCase.changedFiles === undefined) {
       return runHookScript(script, hookCase.argument, hookCase.input, stateDirectory);
     }
@@ -492,12 +526,25 @@ function findHookOutcome(output: string): string {
   }
 
   try {
-    const {decision, followup_message: followupMessage} = JSON.parse(output) as {
+    const {
+      decision,
+      followup_message: followupMessage,
+      hookSpecificOutput,
+      permission,
+    } = JSON.parse(output) as {
       decision?: string;
       followup_message?: string;
+      hookSpecificOutput?: {permissionDecision?: string};
+      permission?: string;
     };
 
-    return decision === "block" || followupMessage !== undefined ? "block" : output;
+    const isBlocked =
+      decision === "block" ||
+      followupMessage !== undefined ||
+      permission === "deny" ||
+      hookSpecificOutput?.permissionDecision === "deny";
+
+    return isBlocked ? "block" : output;
   } catch {
     return output;
   }
@@ -966,6 +1013,35 @@ const selfTestCases: SelfTestCase[] = [
         }
       ).hooks.Stop[0]?.hooks[0]?.command ?? "",
     ],
+  },
+  {
+    name: "two hooks on one event both render, with a matcher and a timeout",
+    expected: [`Bash 900 sh "\${CLAUDE_PLUGIN_ROOT}/hooks/b.sh"`, "2"],
+    problems: (() => {
+      const {hooks} = JSON.parse(
+        renderClaudeHooks([
+          {
+            event: "PreToolUse",
+            script: "a.sh",
+          },
+          {
+            event: "PreToolUse",
+            script: "b.sh",
+            matcher: "Bash",
+            timeout: 900,
+          },
+        ]),
+      ) as {
+        hooks: {PreToolUse: {hooks: {command: string; timeout: number}[]; matcher?: string}[]};
+      };
+
+      const second = hooks.PreToolUse[1];
+
+      return [
+        `${second?.matcher ?? ""} ${String(second?.hooks[0]?.timeout)} ${second?.hooks[0]?.command ?? ""}`,
+        String(hooks.PreToolUse.length),
+      ];
+    })(),
   },
   {
     name: "a hook renders its argument and loop limit for Cursor",

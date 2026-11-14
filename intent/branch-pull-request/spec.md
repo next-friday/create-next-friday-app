@@ -1,6 +1,8 @@
 # Spec: Every branch has an open pull request, and every pull request ends in a merge
 
-From `intent/branch-pull-request/intent.md`. Status: accepted.
+From `intent/branch-pull-request/intent.md`. Status: done.
+
+Built: requirements 1, 2, and 5; `intent/workflow-gates/` replaced the pre-push hook of requirement 1. Withdrawn: requirements 3 and 4, outside the starter's scope, because they need a GitHub App for the agent; a consumer who wants them opens its own intent.
 
 GitHub Docs claims are read from the `github/docs` repository at `f309096`, because `docs.github.com` is not reachable from this session; each cites the file under `content/` or `data/`.
 

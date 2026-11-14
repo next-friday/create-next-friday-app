@@ -371,6 +371,52 @@ function isFixPlanFolder(folder: string): boolean {
   );
 }
 
+const unplannedBranchPrefixes = ["dependabot/", "changeset-release/"];
+const headReferenceVariable = "GITHUB_HEAD_REF";
+const planPathPattern = /^intent\/[^/]+\/plan\.md$/;
+const testDirectoryPattern = /(?:^|\/)(?:tests?|e2e|__tests__)\//;
+const testFilePattern = /\.(?:test|spec)\.[cm]?[jt]sx?$/;
+const testChangeAcceptedPattern = /^Test change accepted by: @[\dA-Za-z][\w-]*\.$/m;
+
+/**
+ * Find a branch that changes code with no plan for its change.
+ * @param changedPaths The paths the branch changed since it left the default branch.
+ * @param branchName The branch's name; branches that a bot opens for dependencies and releases need no plan.
+ * @returns At most one message.
+ */
+function findUnplannedChangeProblems(changedPaths: string[], branchName: string): string[] {
+  const isChangesCode = changedPaths.some(
+    changedPath => !changedPath.startsWith(`${intentDirectory}/`),
+  );
+
+  const hasPlan = changedPaths.some(changedPath => planPathPattern.test(changedPath));
+  const isBotBranch = unplannedBranchPrefixes.some(prefix => branchName.startsWith(prefix));
+
+  return !isChangesCode || hasPlan || isBotBranch
+    ? []
+    : [
+        `this branch changes files outside ${intentDirectory}/ and adds or changes no ${intentDirectory}/<change>/${planFileName}; commit the plan the engineer accepted in the same pull request`,
+      ];
+}
+
+/**
+ * Find a fix that edits a test the default branch already holds.
+ * @param modifiedPaths The paths the branch modified that the default branch already held.
+ * @param planText The fix plan's content.
+ * @returns At most one message.
+ */
+function findFixTestEditProblems(modifiedPaths: string[], planText: string): string[] {
+  const editedTests = modifiedPaths.filter(
+    modifiedPath => testDirectoryPattern.test(modifiedPath) || testFilePattern.test(modifiedPath),
+  );
+
+  return editedTests.length === 0 || testChangeAcceptedPattern.test(planText)
+    ? []
+    : [
+        `this fix changes ${editedTests.join(", ")}, which the default branch already holds; fix the code, not the test, or a code owner who accepts the change writes "Test change accepted by: @<handle>." in the plan`,
+      ];
+}
+
 /**
  * Find a missing spec, or a spec the plan does not prove.
  * @param maskedLines Plan lines with fenced code blocks emptied.
@@ -887,6 +933,39 @@ const selfTestCases: SelfTestCase[] = [
     ),
   },
   {
+    name: "a branch that changes code and adds a plan",
+    problems: findUnplannedChangeProblems(["src/a.ts", "intent/a/plan.md"], "feat/a"),
+  },
+  {
+    name: "a branch that changes code with no plan",
+    expectedMessagePart: "adds or changes no",
+    problems: findUnplannedChangeProblems(["src/a.ts"], "feat/a"),
+  },
+  {
+    name: "a dependency branch that changes code with no plan",
+    problems: findUnplannedChangeProblems(["package.json"], "dependabot/npm_and_yarn/a"),
+  },
+  {
+    name: "a branch that changes only intent files",
+    problems: findUnplannedChangeProblems(["intent/a/intent.md"], "docs/a"),
+  },
+  {
+    name: "a fix that edits a test the default branch holds",
+    expectedMessagePart: "fix the code, not the test",
+    problems: findFixTestEditProblems(["src/a.test.ts", "src/a.ts"], "# Plan: a (fix)\n"),
+  },
+  {
+    name: "a fix whose test change a code owner accepted",
+    problems: findFixTestEditProblems(
+      ["test/a.ts"],
+      "# Plan: a (fix)\n\nTest change accepted by: @owner.\n",
+    ),
+  },
+  {
+    name: "a fix that edits only code",
+    problems: findFixTestEditProblems(["src/a.ts"], "# Plan: a (fix)\n"),
+  },
+  {
     name: "every area of concern has a decision",
     problems: findDecisionProblems(
       `${concernsHeading}\n\n1. A.\n   ${decisionPrefix}yes.\n2. B.\n   ${decisionPrefix}no.\n\n## Open questions\n`,
@@ -1050,6 +1129,46 @@ function readDefaultBranchFile(mergeBase: string, filePath: string): string | un
 }
 
 /**
+ * Report a branch that changes code with no plan, and a fix that edits a test the default branch holds.
+ * @returns One line per problem.
+ */
+function findBranchRuleLines(): string[] {
+  const branchChanges = findBranchChanges();
+
+  if (branchChanges === undefined || branchChanges.mergeBase === branchChanges.headCommit) {
+    return [];
+  }
+
+  const headReference = process.env[headReferenceVariable];
+
+  const branchName =
+    headReference === undefined || headReference === ""
+      ? runGit(["branch", "--show-current"])
+      : headReference;
+
+  const modifiedPaths = runGit([
+    "diff",
+    "--name-only",
+    "--no-renames",
+    "--diff-filter=MD",
+    `${branchChanges.mergeBase}...HEAD`,
+  ])
+    .split("\n")
+    .filter(modifiedPath => modifiedPath !== "");
+
+  const fixPlanLines = branchChanges.changedPaths
+    .filter(changedPath => planPathPattern.test(changedPath) && existsSync(changedPath))
+    .filter(planPath => isFixPlanFolder(path.dirname(planPath)))
+    .flatMap(planPath =>
+      findFixTestEditProblems(modifiedPaths, readFileSync(planPath, "utf8")).map(
+        message => `${planPath}: ${message}`,
+      ),
+    );
+
+  return [...findUnplannedChangeProblems(branchChanges.changedPaths, branchName), ...fixPlanLines];
+}
+
+/**
  * Report each spec this branch adds or changes that leaves an area of concern undecided, and each intent it adds whose author is not a handle.
  * @param changeFolders The `intent/<change>` folders.
  * @returns One line per problem.
@@ -1148,6 +1267,7 @@ if (selfTestFailures.length > 0) {
     ...findMissingPlanLines(changeFolders),
     ...findAcceptedStatusLines(changeFolders),
     ...findRecordLines(changeFolders),
+    ...(argumentPaths.length === 0 ? findBranchRuleLines() : []),
   ];
 
   if (problemLines.length > 0) {

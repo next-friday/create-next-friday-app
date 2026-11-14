@@ -12,6 +12,16 @@
     {
       "event": "SessionStart",
       "script": "sdlc-status.sh"
+    },
+    {
+      "event": "PreToolUse",
+      "script": "check-push.sh",
+      "matcher": "Bash"
+    },
+    {
+      "event": "Stop",
+      "script": "check-verify.sh",
+      "timeout": 900
     }
   ],
   "cursor": [
@@ -35,6 +45,17 @@
       "event": "sessionStart",
       "script": "sdlc-status.sh",
       "argument": "json"
+    },
+    {
+      "event": "beforeShellExecution",
+      "script": "check-push.sh",
+      "argument": "json"
+    },
+    {
+      "event": "stop",
+      "script": "check-verify.sh",
+      "argument": "followup",
+      "loopLimit": 1
     }
   ]
 }

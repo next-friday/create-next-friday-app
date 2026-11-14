@@ -17,7 +17,7 @@ This playbook takes a defect in behaviour that already exists to a pull request.
 6. Create the branch `fix/<short-description>` as `playbooks/open-pr.md` says. In its first commit, write `intent/<short-description>/plan.md` with the `Accepted by:` line set to the handle of the engineer who accepted it, as `playbooks/build.md` step 6 says.
 7. The plan, the failing test, and the fix go in one pull request, as `playbooks/build.md` step 7 says.
 8. Reproduce the defect as a test. Run it and check that it fails for the reason the cause gives. Commit the failing test before any fix.
-9. Make the test pass without editing it. When the test fails a second time after a fix, start a subagent on the `advise` model as `playbooks/build.md` step 8 says.
+9. Make the test pass without editing it, or any other test the default branch holds: `pnpm plan:check` refuses a fix that does, unless a code owner who accepts the change writes `Test change accepted by: @<handle>.` in the plan. When the test fails a second time after a fix, start a subagent on the `advise` model as `playbooks/build.md` step 8 says.
 10. Run every check the project's agent instructions name. Keep the output. Before you report the fix done, have it reviewed on the `advise` model as `playbooks/build.md` step 9 says, with the plan in place of `spec.md`. When one fails, fix the code, and never skip, delete, or weaken a test. When a check cannot run in this session, say which one and why, and never report it as passed.
 11. Go on in the same turn, without asking. Follow `playbooks/open-pr.md`, and then `playbooks/review.md`.
 
