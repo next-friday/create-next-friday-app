@@ -19,7 +19,7 @@ Accepted by: @joetakara.
 
 ## Proof
 
-- 1: `playbooks/open-pr.md` step 4 and `playbooks/review.md` step 4.
+- 1: `playbooks/open-pr.md` step 4, which `review.md` step 4, `plan.md` step 6, `design.md` step 4, and `maintain.md` step 5 follow.
 - 2: `check-push.cases.json`: a push with no review is blocked in both tools, a push of the reviewed commit passes, and a command that is not a push passes, including a commit message that names one.
 - 3: running the hook on a branch whose commit changes a file the plan does not name blocks the push and names the file.
 - 4: `playbooks/open-pr.md` step 6 puts the findings in the review's comment.

@@ -15,7 +15,7 @@ Written at `main` `619cb88` with the product owner's scope for the starter: a ge
 
 ## Design
 
-- `playbooks/open-pr.md` step 4 and `playbooks/review.md` step 4: review before each push, then write the reviewed commit's hash to the file `git rev-parse --git-path sdlc-review` names.
+- `playbooks/open-pr.md` step 4: review before each push, then write the reviewed commit's hash to the file `git rev-parse --git-path sdlc-review` names. Every playbook that pushes follows it: `review.md` step 4, `plan.md` step 6, `design.md` step 4, and `maintain.md` step 5.
 - `plugins/sdlc/source/hooks/check-push.sh`: a `PreToolUse` hook on `Bash` in Claude Code and a `beforeShellExecution` hook in Cursor, with cases in `check-push.cases.json`.
 
 ## Policies
