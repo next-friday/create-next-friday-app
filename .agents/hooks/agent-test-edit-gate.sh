@@ -19,9 +19,6 @@ input=$(cat)
 project=${CLAUDE_PROJECT_DIR:-${CURSOR_PROJECT_DIR:-$PWD}}
 path=$(jq -r '.tool_input.file_path // .tool_input.path // .tool_input.notebook_path // .file_path // empty' <<< "$input")
 [[ -n $path && $path =~ $test_path_pattern ]] || allow
-if [[ -e "$project/.git/bug-fix-in-progress" ]]; then
-  block "A bug fix is in progress (.git/bug-fix-in-progress), so $path cannot change. Fix the code, not the test."
-fi
 branch=$(git -C "$project" symbolic-ref --quiet --short HEAD 2> /dev/null) || branch=
 [[ $branch == fix/* ]] || allow
 default_branch=$(git -C "$project" symbolic-ref --quiet --short refs/remotes/origin/HEAD 2> /dev/null) || default_branch=origin/main

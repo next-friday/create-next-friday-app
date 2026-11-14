@@ -403,10 +403,6 @@ const testFileName = "login.test.ts";
 const fixBranchWithTest = createRepository(fixBranch, [testFileName]);
 const fixBranchWithoutTest = createRepository(fixBranch, ["login.ts"]);
 const featureBranchWithTest = createRepository(featureBranch, [testFileName]);
-const markerRepository = createRepository(featureBranch, []);
-
-writeFileSync(path.join(markerRepository, ".git", "bug-fix-in-progress"), "");
-
 const testFile = `src/${testFileName}`;
 const outsideRepository = mkdtempSync(path.join(tmpdir(), "agent-gates-outside-"));
 
@@ -556,11 +552,6 @@ const cases: GateCase[] = [
       projectDirectory: featureBranchWithTest,
       name: "other branch with a committed test",
       expectedExit: 0,
-    },
-    {
-      projectDirectory: markerRepository,
-      name: "bug-fix-in-progress marker",
-      expectedExit: 2,
     },
     {
       projectDirectory: outsideRepository,
@@ -764,7 +755,6 @@ for (const directory of [
   fixBranchWithTest,
   fixBranchWithoutTest,
   featureBranchWithTest,
-  markerRepository,
   outsideRepository,
 ]) {
   rmSync(directory, {

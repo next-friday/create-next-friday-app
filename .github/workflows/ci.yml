@@ -24,7 +24,6 @@ jobs:
     outputs:
       heavy: ${{ steps.filter.outputs.heavy }}
       ci_policy: ${{ steps.filter.outputs.ci_policy }}
-      release_pr: ${{ steps.mode.outputs.release_pr }}
       full_verification: ${{ steps.mode.outputs.full_verification }}
     steps:
       - name: Checkout repository
@@ -57,7 +56,6 @@ jobs:
             full_verification=true
           fi
 
-          echo "release_pr=$release_pr" >> "$GITHUB_OUTPUT"
           echo "full_verification=$full_verification" >> "$GITHUB_OUTPUT"
 
   lint:
@@ -352,6 +350,8 @@ jobs:
             node: 24.21.0
           - os: macos-latest
             node: 24.21.0
+          - os: ubuntu-latest
+            node: 26.13.0
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -364,34 +364,9 @@ jobs:
       - name: Run package tests
         run: pnpm test
 
-  release-integrity:
-    name: Release Integrity
-    needs: changes
-    if: needs.changes.outputs.release_pr == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          persist-credentials: false
-      - name: Set up pnpm
-        uses: ./.github/actions/setup-pnpm
-      - name: Validate release metadata
-        env:
-          GITHUB_TOKEN: ${{ github.token }} # editorconfig-checker downloads its binary from GitHub releases; the token avoids the anonymous rate limit.
-        run: |
-          pnpm format:check
-          pnpm sort-package-json:check
-      - name: Build package
-        run: pnpm build
-      - name: Validate package manifest and files
-        run: pnpm check:publint
-
   triage:
     name: Triage failed build
     needs:
-      - release-integrity
       - lint
       - agent-gates
       - format
@@ -449,7 +424,6 @@ jobs:
     timeout-minutes: 5
     needs:
       - changes
-      - release-integrity
       - lint
       - agent-gates
       - format

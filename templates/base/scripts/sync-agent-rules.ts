@@ -77,33 +77,6 @@ for (const name of configNames) {
   expected.set(path.join(cursorDirectory, `${name}.mdc`), renderCursorRule(rule, body));
 }
 
-const skillSourceDirectory = ".agents/skills";
-const skillDirectories = [".claude/skills", ".cursor/skills"];
-
-/**
- * List every file under a directory, as paths relative to it.
- * @param directory Directory to read; a missing directory has no files.
- * @returns Relative file paths.
- */
-function listFiles(directory: string): string[] {
-  return existsSync(directory)
-    ? readdirSync(directory, {
-        recursive: true,
-        withFileTypes: true,
-      })
-        .filter(entry => entry.isFile())
-        .map(entry => path.relative(directory, path.join(entry.parentPath, entry.name)))
-    : [];
-}
-
-for (const file of listFiles(skillSourceDirectory)) {
-  const content = readFileSync(path.join(skillSourceDirectory, file), "utf8");
-
-  for (const directory of skillDirectories) {
-    expected.set(path.join(directory, file), content);
-  }
-}
-
 const sharedFiles: Record<string, string[]> = {
   ".agents/mcp.json": [".mcp.json", ".cursor/mcp.json"],
   ".agents/review.md": ["REVIEW.md"],
@@ -122,9 +95,6 @@ for (const [source, targets] of sharedSources) {
 const orphans = [
   ...listNames(claudeDirectory, ".md").map(name => path.join(claudeDirectory, `${name}.md`)),
   ...listNames(cursorDirectory, ".mdc").map(name => path.join(cursorDirectory, `${name}.mdc`)),
-  ...skillDirectories.flatMap(directory =>
-    listFiles(directory).map(file => path.join(directory, file)),
-  ),
   ...Object.values(sharedFiles)
     .flat()
     .filter(file => existsSync(file)),
