@@ -1164,10 +1164,7 @@ function findBranchRuleLines(): string[] {
       ),
     );
 
-  return [
-    ...findUnplannedChangeProblems(branchChanges.changedPaths, branchName),
-    ...fixPlanLines,
-  ];
+  return [...findUnplannedChangeProblems(branchChanges.changedPaths, branchName), ...fixPlanLines];
 }
 
 /**
