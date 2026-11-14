@@ -1,22 +1,27 @@
 # Runs on any OCI container platform. A platform that builds Next.js itself deploys without it. The platform sets `PORT`.
 FROM \
-  node:24.22.1-alpine@sha256:06d7adf3e0ef61a13f1d28682726366f97a15aa1888c934d3ecec86c33918b53 \
+  node:26.13.0-alpine@sha256:8996bb5821d62a8fd9bb27c1cb07462f3fdce6e47d640c6a881ead0b064ce216 \
+  AS prune
+WORKDIR /app
+COPY . .
+RUN corepack enable \
+  && pnpm dlx "turbo@$(node -p "require('./package.json').devDependencies.turbo")" prune "$(node -p "require('./apps/backoffice/package.json').name")" --docker
+
+FROM \
+  node:26.13.0-alpine@sha256:8996bb5821d62a8fd9bb27c1cb07462f3fdce6e47d640c6a881ead0b064ce216 \
   AS build
 ENV NEXT_TELEMETRY_DISABLED=1
 WORKDIR /app
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY apps/app/package.json apps/app/package.json
-COPY apps/backoffice/package.json apps/backoffice/package.json
+COPY --from=prune /app/out/json/ ./
 RUN corepack enable
-RUN pnpm install --frozen-lockfile --ignore-scripts --filter ./apps/backoffice...
-COPY apps/backoffice/next.config.ts apps/backoffice/tsconfig.json apps/backoffice/
-COPY apps/backoffice/src apps/backoffice/src
+RUN pnpm install --frozen-lockfile --ignore-scripts
+COPY --from=prune /app/out/full/ ./
 # `next build` loads the Payload config, which requires these variables. The values are placeholders for the build only.
 # The platform sets the real ones at runtime, and the build never connects to the database.
 RUN PAYLOAD_SECRET=build-only DATABASE_URL=postgres://build-only@localhost/build-only APP_URL=http://localhost:3001 pnpm --filter ./apps/backoffice build
 
 FROM \
-  node:24.22.1-alpine@sha256:06d7adf3e0ef61a13f1d28682726366f97a15aa1888c934d3ecec86c33918b53
+  node:26.13.0-alpine@sha256:8996bb5821d62a8fd9bb27c1cb07462f3fdce6e47d640c6a881ead0b064ce216
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 HOSTNAME=0.0.0.0
 WORKDIR /app
 # Apply Alpine security fixes released after the base image, and drop npm, corepack, and yarn: the app never runs them, and their bundled dependencies carry their own CVEs.

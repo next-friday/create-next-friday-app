@@ -1,6 +1,6 @@
 # Intent: Each change is reviewed and kept in step with its plan before it is pushed
 
-Author: Joe Takara (Developer Productivity). Status: draft.
+Author: Joe Takara (Developer Productivity). Status: done.
 
 ## Problem
 

@@ -9,6 +9,8 @@ updates:
       time: "09:00"
     cooldown:
       default-days: 7
+      exclude:
+        - "@next-friday/*"
     open-pull-requests-limit: 10
     commit-message:
       prefix: chore

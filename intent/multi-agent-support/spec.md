@@ -1,6 +1,8 @@
 # Spec: Support Claude Code and Cursor from one source
 
-From `intent/multi-agent-support/intent.md`. Status: draft.
+From `intent/multi-agent-support/intent.md`. Status: withdrawn.
+
+Withdrawn: outside the starter's scope, which the product owner set as a generated project that builds, tests, lints, and runs CI, with the full `sdlc` plugin; a consumer who wants more opens its own intent. In particular, the `sdlc` plugin renders the skills and the subagent for each agent tool, and the dead skill and subagent paths of `scripts/sync-agent-rules.ts` are removed with `intent/ci/`.
 
 Written at `main` `7aac1c3` with the `write-spec` skill as committed there. The agent wrote it as the next step of the loop, under `AGENTS.md`'s "Asking the product owner"; the product owner asked for it through another session, and no product owner prompt added a constraint to the skill's prompt.
 

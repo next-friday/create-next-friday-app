@@ -1,6 +1,8 @@
 # Spec: One monorepo per project, with apps the team names and adds
 
-From `intent/monorepo-apps/intent.md`. Status: accepted.
+From `intent/monorepo-apps/intent.md`. Status: withdrawn.
+
+Withdrawn: outside the starter's scope, which the product owner set as a generated project that builds, tests, lints, and runs CI, with the full `sdlc` plugin; a consumer who wants more opens its own intent. In particular, the five stacks of `src/stacks.ts` stay the starting points, and the deploy pipeline on a hosting provider is the consumer's choice.
 
 Written at `main` `d856a39` with the `write-spec` skill as committed there. The product owner's prompt, "กลับมาทำงาน เดิม intent ให้จบ" ("back to the intent work, finish it"), added no constraint to the skill's prompt.
 

@@ -1,6 +1,8 @@
 # Spec: Keep dependencies current
 
-From `intent/dependency-freshness/intent.md`. Status: accepted.
+From `intent/dependency-freshness/intent.md`. Status: done.
+
+Built: every requirement except requirement 4, Renovate, withdrawn as outside the starter's scope; Dependabot updates Node.js in each Dockerfile, and `.nvmrc` moves by hand with it.
 
 Written at `main` `dfac1fc` with the `write-spec` skill as committed there, as the next step of the loop. The product owner's request added no constraint to the skill's prompt.
 

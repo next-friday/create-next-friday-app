@@ -1,5 +1,6 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
+  "concurrency": "2",
   "futureFlags": {
     "affectedUsingTaskInputs": true
   },

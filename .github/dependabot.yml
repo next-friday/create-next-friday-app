@@ -10,6 +10,8 @@ updates:
       timezone: Asia/Bangkok
     cooldown:
       default-days: 7
+      exclude:
+        - "@next-friday/*"
     open-pull-requests-limit: 10
     commit-message:
       prefix: chore
@@ -81,6 +83,8 @@ updates:
       timezone: Asia/Bangkok
     cooldown:
       default-days: 7
+      exclude:
+        - "@next-friday/*"
     open-pull-requests-limit: 10
     commit-message:
       prefix: chore

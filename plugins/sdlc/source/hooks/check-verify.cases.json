@@ -1,0 +1,59 @@
+[
+  {
+    "name": "no project: nothing to check",
+    "input": {
+      "cwd": "/nonexistent-project"
+    },
+    "expected": "pass"
+  },
+  {
+    "name": "no verify script: nothing to check",
+    "input": {},
+    "fileContents": {
+      "src/new.ts": "export {};\n"
+    },
+    "expected": "pass"
+  },
+  {
+    "name": "a change and a passing verify: the turn ends",
+    "input": {},
+    "fileContents": {
+      "package.json": "{\"name\": \"case\", \"private\": true, \"scripts\": {\"verify\": \"node -e 0\"}}\n"
+    },
+    "expected": "pass"
+  },
+  {
+    "name": "a change and a failing verify: the turn continues",
+    "input": {
+      "stop_hook_active": false
+    },
+    "fileContents": {
+      "package.json": "{\"name\": \"case\", \"private\": true, \"scripts\": {\"verify\": \"node -e \\\"console.log('broken check');process.exit(1)\\\"\"}}\n"
+    },
+    "expected": "block"
+  },
+  {
+    "name": "the second tool: a failing verify sends a follow-up",
+    "argument": "followup",
+    "input": {
+      "status": "completed",
+      "loop_count": 0
+    },
+    "fileContents": {
+      "package.json": "{\"name\": \"case\", \"private\": true, \"scripts\": {\"verify\": \"node -e \\\"console.log('broken check');process.exit(1)\\\"\"}}\n"
+    },
+    "expected": "block"
+  },
+  {
+    "name": "the second tool: a follow-up run does not run again",
+    "argument": "followup",
+    "input": {
+      "status": "completed",
+      "loop_count": 1
+    },
+    "fileContents": {
+      "package.json": "{\"name\": \"case\", \"private\": true, \"scripts\": {\"verify\": \"node -e \\\"console.log('broken check');process.exit(1)\\\"\"}}\n"
+    },
+    "expected": "pass"
+  }
+]

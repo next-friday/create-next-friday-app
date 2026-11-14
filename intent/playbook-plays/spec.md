@@ -1,6 +1,8 @@
 # Spec: Adopt the AI-native SDLC Playbook in the templates and the root
 
-From `intent/playbook-plays/intent.md`. Status: accepted.
+From `intent/playbook-plays/intent.md`. Status: done.
+
+Built: every requirement except these parts, withdrawn as outside the starter's scope: requirement 10's deploy to `prod` from a `v*` tag, the templates' `rollback.yml`, and promotion read from a hosting provider's history; and requirement 14's loop guide in `apps/docs`, which `templates/base/SETUP.md`, **How a change flows**, holds instead. A consumer who wants them opens its own intent.
 
 Written at `main` `dfac1fc` with the `write-spec` skill as committed there. The agent wrote it as the next step of the loop, under `AGENTS.md`'s "Asking the product owner"; no product owner prompt added a constraint to the skill's prompt.
 

@@ -1,0 +1,51 @@
+[
+  {
+    "name": "not a push: allowed",
+    "input": {
+      "tool_input": {
+        "command": "git status"
+      }
+    },
+    "expected": "pass"
+  },
+  {
+    "name": "not a push, second tool: allowed",
+    "argument": "json",
+    "input": {
+      "command": "git status"
+    },
+    "expected": "{\"permission\":\"allow\"}\n"
+  },
+  {
+    "name": "a push with no review: blocked",
+    "input": {
+      "tool_input": {
+        "command": "git push -u origin feat/x"
+      }
+    },
+    "fileContents": {
+      "README.md": "x\n"
+    },
+    "expected": "block"
+  },
+  {
+    "name": "a push with no review, second tool: blocked",
+    "argument": "json",
+    "input": {
+      "command": "git -C . push"
+    },
+    "fileContents": {
+      "README.md": "x\n"
+    },
+    "expected": "block"
+  },
+  {
+    "name": "a word that only contains push: allowed",
+    "input": {
+      "tool_input": {
+        "command": "git log --grep=pushed"
+      }
+    },
+    "expected": "pass"
+  }
+]

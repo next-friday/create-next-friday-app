@@ -1,6 +1,8 @@
 # Intent: Support Claude Code and Cursor from one source
 
-Author: Joe Takara (Developer Productivity). Status: accepted.
+Author: Joe Takara (Developer Productivity). Status: withdrawn.
+
+Withdrawn: outside the starter's scope, which the product owner set as a generated project that builds, tests, lints, and runs CI, with the full `sdlc` plugin; a consumer who wants more opens its own intent. In particular, the `sdlc` plugin renders the skills and the subagent for each agent tool, and the dead skill and subagent paths of `scripts/sync-agent-rules.ts` are removed with `intent/ci/`.
 
 ## Problem
 
